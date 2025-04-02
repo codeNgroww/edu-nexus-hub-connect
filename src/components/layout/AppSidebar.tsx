@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -81,6 +80,13 @@ const SidebarLink = ({ to, icon, label, isActive, onClick, subMenu }: SidebarLin
   );
 };
 
+interface LinkItem {
+  to: string;
+  icon: React.ReactNode;
+  label: string;
+  subMenu?: { label: string; to: string }[];
+}
+
 interface AppSidebarProps {
   userType: "student" | "teacher" | "admin";
 }
@@ -100,20 +106,18 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
     }
   };
 
-  // Shared links for all user types
-  const commonLinks = [
+  const commonLinks: LinkItem[] = [
     { to: `/${userType}-dashboard`, icon: <LayoutDashboard size={20} />, label: "Dashboard" },
     { to: `/${userType}/timetable`, icon: <CalendarRange size={20} />, label: "Timetable" },
   ];
   
-  // User type specific links
-  const studentLinks = [
+  const studentLinks: LinkItem[] = [
     { to: "/student/assignments", icon: <FileText size={20} />, label: "Assignments" },
     { to: "/student/exams", icon: <FileQuestion size={20} />, label: "Exams" },
     { to: "/student/progress", icon: <ClipboardList size={20} />, label: "Progress Report" },
   ];
   
-  const teacherLinks = [
+  const teacherLinks: LinkItem[] = [
     { 
       icon: <FileText size={20} />, 
       label: "Assignments", 
@@ -135,14 +139,13 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
     { to: "/teacher/students", icon: <Users size={20} />, label: "Students" },
   ];
   
-  const adminLinks = [
+  const adminLinks: LinkItem[] = [
     { to: "/admin/users", icon: <Users size={20} />, label: "User Management" },
     { to: "/admin/hr", icon: <Users size={20} />, label: "HR Module" },
     { to: "/admin/inventory", icon: <ShoppingBag size={20} />, label: "Inventory" },
     { to: "/admin/finance", icon: <Calculator size={20} />, label: "Accounts" },
   ];
   
-  // Select the appropriate links based on user type
   const userLinks = (() => {
     switch (userType) {
       case "student":
@@ -160,7 +163,6 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
   
   return (
     <>
-      {/* Mobile overlay */}
       {isMobile && isOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40"
@@ -168,7 +170,6 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
         />
       )}
       
-      {/* Sidebar toggle button for mobile */}
       <Button
         variant="ghost"
         size="icon"
@@ -178,21 +179,18 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
         {isOpen ? <X size={20} /> : <Menu size={20} />}
       </Button>
       
-      {/* Sidebar */}
       <aside
         className={cn(
           "bg-sidebar fixed top-0 left-0 h-full z-40 transition-all duration-300 w-64",
           isOpen ? "translate-x-0" : "-translate-x-full",
-          "lg:translate-x-0 lg:static lg:z-0" // Desktop styles
+          "lg:translate-x-0 lg:static lg:z-0"
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Sidebar header */}
           <div className="p-4 border-b border-sidebar-border flex justify-center items-center h-16">
             <h2 className="text-xl font-bold text-white">EduNexus Hub</h2>
           </div>
           
-          {/* Sidebar content */}
           <div className="flex-1 py-4 overflow-y-auto">
             <nav className="px-2 space-y-1">
               {links.map((link, index) => (
@@ -209,7 +207,6 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
             </nav>
           </div>
           
-          {/* Sidebar footer */}
           <div className="p-4 border-t border-sidebar-border">
             <Link 
               to="/"
