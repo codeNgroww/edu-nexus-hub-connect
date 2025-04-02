@@ -1,11 +1,13 @@
 
 import { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import AppSidebar from "./AppSidebar";
 import { Bell, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -14,6 +16,8 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout = ({ children, userType, pageTitle = "Dashboard" }: DashboardLayoutProps) => {
+  const { profile, signOut } = useAuth();
+  
   return (
     <div className="min-h-screen bg-edu-background flex">
       <AppSidebar userType={userType} />
@@ -57,20 +61,27 @@ const DashboardLayout = ({ children, userType, pageTitle = "Dashboard" }: Dashbo
                   <Button variant="ghost" className="relative h-8 rounded-full" size="icon">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="bg-edu-primary text-white">
-                        {userType === "student" ? "S" : userType === "teacher" ? "T" : "A"}
+                        {profile?.first_name?.charAt(0) || userType.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel className="capitalize">
-                    {userType} Account
+                  <DropdownMenuLabel>
+                    {profile ? `${profile.first_name} ${profile.last_name}` : "User"}
+                    <p className="text-xs text-muted-foreground mt-1 capitalize">{profile?.role || userType}</p>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to={`/${userType}/profile`}>Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to={`/${userType}/settings`}>Settings</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Sign out</DropdownMenuItem>
+                  <DropdownMenuItem onClick={signOut}>
+                    Sign out
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

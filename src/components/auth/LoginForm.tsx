@@ -1,49 +1,34 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
 import { GraduationCap, Book, UserCog } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LoginForm = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState("student");
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // This is just for demonstration; in a real app, you'd validate credentials with a backend
-    if (username && password) {
-      toast({
-        title: "Login Successful",
-        description: `Logged in as ${userType}: ${username}`,
-      });
-      
-      // Navigate to the appropriate dashboard based on user type
-      switch (userType) {
-        case "student":
-          navigate("/student-dashboard");
-          break;
-        case "teacher":
-          navigate("/teacher-dashboard");
-          break;
-        case "admin":
-          navigate("/admin-dashboard");
-          break;
-      }
-    } else {
-      toast({
-        title: "Login Failed",
-        description: "Please enter both username and password",
-        variant: "destructive",
-      });
+    if (!username || !password) {
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      await signIn(username, password);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,13 +60,14 @@ const LoginForm = () => {
           <form onSubmit={handleLogin}>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Email</Label>
                 <Input
                   id="username"
-                  type="text"
-                  placeholder="Enter your username"
+                  type="email"
+                  placeholder="Enter your email"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -92,21 +78,32 @@ const LoginForm = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
             </div>
             
-            <Button type="submit" className="w-full mt-6 bg-edu-primary hover:bg-blue-600">
-              Sign In
+            <Button 
+              type="submit" 
+              className="w-full mt-6 bg-edu-primary hover:bg-blue-600"
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
         </Tabs>
       </CardContent>
       <CardFooter className="flex flex-col space-y-2 text-sm text-muted-foreground">
         <div className="text-center w-full">
-          <a href="#" className="text-edu-primary hover:underline">
+          <Link to="/forgot-password" className="text-edu-primary hover:underline">
             Forgot your password?
-          </a>
+          </Link>
+        </div>
+        <div className="text-center w-full">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-edu-primary hover:underline">
+            Register here
+          </Link>
         </div>
       </CardFooter>
     </Card>
